@@ -1,4 +1,5 @@
-import { AccountModel } from './models/account-model'
+import { AccountModel } from 'domain/models/account-model'
+
 interface AuthenticationParams {
   email: string
   passoword: string
