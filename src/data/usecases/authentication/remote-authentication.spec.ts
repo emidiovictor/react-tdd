@@ -4,6 +4,7 @@ import faker from 'faker'
 import { mockAuthentication } from '@/domain/test/mock-authentication'
 import { InvalidCredencialsError } from '@/domain/models/errors/invalid-credencials-error'
 import { HttpStatusCode } from '@/data/protocols/http/http-response'
+import { UnexpectedError } from '@/domain/models/errors/unexpeted-error'
 type SutTypes = {
   sut: RemoteAuthentication
   httpPostSpyClient: HttpPostClientSpy
@@ -28,12 +29,36 @@ describe('RemoteAuthentication', () => {
     await sut.auth(authParams)
     expect(httpPostSpyClient.body).toEqual(authParams)
   })
-  test('Should thow invalid credencial error if httppostclient returns 401', async () => {
+  test('Should throw invalid credencial error if httppostclient returns 401', async () => {
     const { sut, httpPostSpyClient } = makeSut()
     httpPostSpyClient.response = {
       statusCode: HttpStatusCode.unathorizerd
     }
     const promisse = sut.auth(mockAuthentication())
     await expect(promisse).rejects.toThrow(new InvalidCredencialsError())
+  })
+  test('Should throw UnexpectedError if httppostclient returns 400', async () => {
+    const { sut, httpPostSpyClient } = makeSut()
+    httpPostSpyClient.response = {
+      statusCode: HttpStatusCode.badRequest
+    }
+    const promisse = sut.auth(mockAuthentication())
+    await expect(promisse).rejects.toThrow(new UnexpectedError())
+  })
+  test('Should throw UnexpectedError if httppostclient returns 500', async () => {
+    const { sut, httpPostSpyClient } = makeSut()
+    httpPostSpyClient.response = {
+      statusCode: HttpStatusCode.serverError
+    }
+    const promisse = sut.auth(mockAuthentication())
+    await expect(promisse).rejects.toThrow(new UnexpectedError())
+  })
+  test('Should throw UnexpectedError if httppostclient returns 404', async () => {
+    const { sut, httpPostSpyClient } = makeSut()
+    httpPostSpyClient.response = {
+      statusCode: HttpStatusCode.notFound
+    }
+    const promisse = sut.auth(mockAuthentication())
+    await expect(promisse).rejects.toThrow(new UnexpectedError())
   })
 })
