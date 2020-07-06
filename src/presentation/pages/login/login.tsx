@@ -1,7 +1,8 @@
-import React from 'react'
+import React,{ memo } from 'react'
 import Styles from './login.styles.scss'
 import Spinner from '@/presentation/components/spinner/spinner'
 import LoginHeader from '@/presentation/components/login-header/login-header'
+import Footer from '@/presentation/components/footer/footer'
 const Login: React.FC = () => {
   return (
     <div className={Styles.login}>
@@ -33,9 +34,9 @@ const Login: React.FC = () => {
           <Spinner className={Styles.spinner} />
         </div>
       </form>
-      <footer className={Styles.footer}></footer>
+      <Footer></Footer>
     </div>
   )
 }
 
-export default Login
+export default memo(Login)
