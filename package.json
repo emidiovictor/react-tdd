@@ -6,7 +6,7 @@
   "homepage": "https://fordevs-react.herokuapp.com",
   "license": "GNU GPL3",
   "scripts": {
-    "start": "node index",
+    "start": "webpack-dev-server --open",
     "dev:base": "webpack-dev-server --config webpack.dev.js",
     "dev": "npm run dev:base -- --open",
     "build": "webpack --config webpack.prod.js",

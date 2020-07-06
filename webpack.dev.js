@@ -36,10 +36,8 @@ module.exports = {
     historyApiFallback: true
   },
   externals: {
-    react: 'React',
-    axios: 'axios',
-    'react-dom': 'ReactDOM',
-    'react-router-dom': 'ReactRouterDOM'
+    react: 'react',
+    'react-dom': 'ReactDOM'
   },
   plugins: [
     new CleanWebpackPlugin()
