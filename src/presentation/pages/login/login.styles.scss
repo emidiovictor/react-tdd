@@ -28,6 +28,10 @@
     }
     .submit{
       margin-top: 24px;
+      &:disabled{
+        color: #666;
+        background-color: #CCC;
+      }
     }
    
     .link{
