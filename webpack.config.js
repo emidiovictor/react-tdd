@@ -38,8 +38,8 @@ module.exports = {
   externals: {
     react: 'React',
     axios: 'axios',
-    'react-dom': 'ReactDOM',
-    'react-router-dom': 'ReactRouterDOM'
+    'react-dom': 'ReactDOM'
+    // 'react-router-dom': 'ReactRouterDOM'
   },
   plugins: [
     new CleanWebpackPlugin()

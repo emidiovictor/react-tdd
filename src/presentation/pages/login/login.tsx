@@ -19,9 +19,9 @@ const Login: React.FC = () => {
           Entrar
         </button>
         <span className={Styles.link}>Criar conta</span>
-        <FormStatus></FormStatus>
+        <FormStatus/>
       </form>
-      <Footer></Footer>
+      <Footer/>
     </div>
   )
 }
