@@ -1,8 +1,8 @@
-import React,{ memo, useState, useEffect } from 'react'
-import Styles from './login.styles.scss'
-import { LoginHeader, Input, FormStatus, Footer } from '@/presentation/components'
+import { Footer, FormStatus, Input, LoginHeader } from '@/presentation/components'
 import Context from '@/presentation/context/form/form-contex'
 import { IValidation } from '@/presentation/protocols/validation'
+import React, { memo, useEffect, useState } from 'react'
+import Styles from './login.styles.scss'
 
 type PropsLogin ={
   validation: IValidation
@@ -20,10 +20,11 @@ const Login: React.FC<PropsLogin> = ({ validation }: PropsLogin) => {
   })
 
   useEffect(() => {
-    validation.validate({ email: state.email })
+    validation.validate('email', state.email)
   },[state.email])
+
   useEffect(() => {
-    validation.validate({ password: state.password })
+    validation.validate('password', state.password)
   },[state.password])
 
   return (

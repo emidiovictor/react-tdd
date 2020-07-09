@@ -1,7 +1,7 @@
-import React from 'react'
-import { render, RenderResult,fireEvent, cleanup } from '@testing-library/react'
-import Login from './login'
 import { IValidation } from '@/presentation/protocols/validation'
+import { cleanup, fireEvent, render, RenderResult } from '@testing-library/react'
+import React from 'react'
+import Login from './login'
 
 type SutTypes ={
   sut: RenderResult
@@ -20,9 +20,11 @@ const makeSut = (): SutTypes => {
 
 class ValidationSpy implements IValidation {
   errorMessage: string
-  input: object
-  validate (input: object): string {
-    this.input = input
+  fieldName: string
+  fieldValue: string
+  validate (fieldName: string, fieldValue: string): string {
+    this.fieldName = fieldName
+    this.fieldValue = fieldValue
     return this.errorMessage
   }
 }
@@ -50,12 +52,14 @@ describe('Login Component', () => {
     const { sut,validationSpy } = makeSut()
     const emailInput = sut.getByTestId('email')
     fireEvent.input(emailInput, { target: { value: 'any_email' } })
-    expect(validationSpy.input).toEqual({ email: 'any_email' })
+    expect(validationSpy.fieldName).toBe('email')
+    expect(validationSpy.fieldValue).toBe('any_email')
   })
   test('Should  call validation with correct  password', () => {
     const { sut,validationSpy } = makeSut()
     const passwordInput = sut.getByTestId('password')
     fireEvent.input(passwordInput, { target: { value: 'any_password' } })
-    expect(validationSpy.input).toEqual({ password: 'any_password' })
+    expect(validationSpy.fieldName).toBe('password')
+    expect(validationSpy.fieldValue).toBe('any_password')
   })
 })
