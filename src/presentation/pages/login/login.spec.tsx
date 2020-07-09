@@ -54,7 +54,7 @@ describe('Login Component', () => {
 
     const passwordInput = sut.getByTestId('password')
     fireEvent.input(passwordInput, { target: { value: faker.internet.password() } })
-    const emailStatus = sut.getByTestId('email-status')
+    const emailStatus = sut.getByTestId('password-status')
     expect(emailStatus.title).toBe(validationSpy.errorMessage)
     expect(emailStatus.textContent).toBe('🔴')
   })
@@ -63,6 +63,15 @@ describe('Login Component', () => {
     validationSpy.errorMessage = null
     const passwordInput = sut.getByTestId('password')
     fireEvent.input(passwordInput, { target: { value: faker.internet.password() } })
+    const emailStatus = sut.getByTestId('password-status')
+    expect(emailStatus.title).toBe('Tudo certo!')
+    expect(emailStatus.textContent).toBe('✅')
+  })
+  test('Should show valid email state if validation succed', () => {
+    const { sut,validationStub: validationSpy } = makeSut()
+    validationSpy.errorMessage = null
+    const emailInput = sut.getByTestId('email')
+    fireEvent.input(emailInput, { target: { value: faker.internet.password() } })
     const emailStatus = sut.getByTestId('email-status')
     expect(emailStatus.title).toBe('Tudo certo!')
     expect(emailStatus.textContent).toBe('✅')
