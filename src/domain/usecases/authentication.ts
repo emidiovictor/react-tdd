@@ -2,7 +2,7 @@ import { AccountModel } from '../models'
 
 export type AuthenticationParams = {
   email: string
-  passoword: string
+  password: string
 }
 export interface Authentication {
 
