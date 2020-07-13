@@ -37,11 +37,12 @@ const makeSut = (params?: SutParams): SutTypes => {
   }
 }
 
-const simulateValidSubmit = (sut: RenderResult, email = faker.internet.email(), password = faker.internet.password()): void => {
+const simulateValidSubmit = async (sut: RenderResult, email = faker.internet.email(), password = faker.internet.password()): Promise<void> => {
   populatEmailField(sut, email)
   populatePasswordField(sut, password)
-  const submittButton = sut.getByTestId('submit') as HTMLButtonElement
-  fireEvent.click(submittButton)
+  const form = sut.getByTestId('form')
+  fireEvent.submit(form)
+  await waitFor(() => form)
 }
 
 const populatEmailField = (sut: RenderResult, email = faker.internet.email()): void => {
@@ -53,10 +54,23 @@ const populatePasswordField = (sut: RenderResult, password = faker.internet.pass
   fireEvent.input(passwordInput, { target: { value: password } })
 }
 
-const simulateStatusFormField = (sut: RenderResult,fieldName: string,validationError?: string): void => {
+const testStatusFormField = (sut: RenderResult,fieldName: string,validationError?: string): void => {
   const emailStatus = sut.getByTestId(`${fieldName}-status`)
   expect(emailStatus.title).toBe(validationError || 'Tudo certo!')
   expect(emailStatus.textContent).toBe(!validationError ? '✅' : '🔴')
+}
+const testErrorWrapChildCount = (sut: RenderResult,count: number): void => {
+  const errorWrap = sut.getByTestId('error-wrap')
+  expect(errorWrap.childElementCount).toBe(count)
+}
+
+const testElementExits = (sut: RenderResult,fieldName: string): void => {
+  const el = sut.getByTestId(fieldName)
+  expect(el).toBeTruthy()
+}
+const testButtonIsDisable = (sut: RenderResult, fieldName: string, isDisable: boolean): void => {
+  const button = sut.getByTestId(fieldName) as HTMLButtonElement
+  expect(button.disabled).toBe(isDisable)
 }
 
 describe('Login Component', () => {
@@ -67,66 +81,69 @@ describe('Login Component', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError: validationError })
 
-    const errorWrap = sut.getByTestId('error-wrap')
-    expect(errorWrap.childElementCount).toBe(0)
+    testErrorWrapChildCount(sut,0)
 
-    const submittButton = sut.getByTestId('submit') as HTMLButtonElement
-    expect(submittButton.disabled).toBe(true)
+    testButtonIsDisable(sut,'submit', true)
 
-    simulateStatusFormField(sut,'email', validationError)
-    simulateStatusFormField(sut,'password', validationError)
+    testStatusFormField(sut,'email', validationError)
+    testStatusFormField(sut,'password', validationError)
   })
 
   test('Should  show email error if validation fails', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError: validationError })
     populatEmailField(sut)
-    simulateStatusFormField(sut,'email', validationError)
+    testStatusFormField(sut,'email', validationError)
   })
+
   test('Should  show password error if validation fails', () => {
     const validationError = faker.random.words()
     const { sut } = makeSut({ validationError: validationError })
     populatePasswordField(sut)
-    simulateStatusFormField(sut,'password', validationError)
+    testStatusFormField(sut,'password', validationError)
   })
+
   test('Should show valid password state if validation succed', () => {
     const { sut } = makeSut()
     populatePasswordField(sut)
-    simulateStatusFormField(sut,'password')
+    testStatusFormField(sut,'password')
   })
+
   test('Should show valid email state if validation succed', () => {
     const { sut } = makeSut()
     populatEmailField(sut)
-    simulateStatusFormField(sut,'email')
+    testStatusFormField(sut,'email')
   })
+
   test('Should enable submit button if forms is valid', () => {
     const { sut } = makeSut()
     populatEmailField(sut)
     populatePasswordField(sut)
 
-    const submittButton = sut.getByTestId('submit') as HTMLButtonElement
-    expect(submittButton.disabled).toBe(false)
-  })
-  test('Should show error on submit event', () => {
-    const { sut } = makeSut()
-    simulateValidSubmit(sut)
-    const spinner = sut.getByTestId('spinner')
-    expect(spinner).toBeTruthy()
+    testButtonIsDisable(sut,'submit', false)
   })
 
-  test('Should call auhtentication with correct values', () => {
+  test('Should show error on submit event', async () => {
+    const { sut } = makeSut()
+    await simulateValidSubmit(sut)
+    testElementExits(sut, 'spinner')
+  })
+
+  test('Should call auhtentication with correct values', async () => {
     const { sut, authenticationSpy } = makeSut()
     const password = faker.internet.password()
     const email = faker.internet.email()
-    simulateValidSubmit(sut, email, password)
+    await simulateValidSubmit(sut, email, password)
     expect(authenticationSpy.params).toEqual({ email, password })
   })
-  test('Should call auhtentication only once', () => {
+
+  test('Should call auhtentication only once', async () => {
     const { sut,authenticationSpy } = makeSut()
-    simulateValidSubmit(sut)
-    simulateValidSubmit(sut)
+    await simulateValidSubmit(sut)
+    await simulateValidSubmit(sut)
     expect(authenticationSpy.callsCount).toBe(1)
   })
+
   test('Should not call auhtentication if form is invalid', () => {
     const validationError = faker.random.words()
     const { sut,authenticationSpy } = makeSut({ validationError })
@@ -145,8 +162,7 @@ describe('Login Component', () => {
 
   test('Should add acces token to localstorage on success and redirect to homePage', async () => {
     const { sut,authenticationSpy } = makeSut()
-    simulateValidSubmit(sut)
-    await waitFor(() => sut.getByTestId('form'))
+    await simulateValidSubmit(sut)
     expect(localStorage.setItem).toHaveBeenCalledWith('acessToken', authenticationSpy.account.acessToken)
 
     expect(history.length).toBe(1)
@@ -155,7 +171,6 @@ describe('Login Component', () => {
 
   test('Should go to signup page', async () => {
     const { sut } = makeSut()
-    simulateValidSubmit(sut)
     const signup = sut.getByTestId('signup')
     fireEvent.click(signup)
 
