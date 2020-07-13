@@ -4,6 +4,7 @@ import { IValidation } from '@/presentation/protocols/validation'
 import React, { memo, useEffect, useState } from 'react'
 import Styles from './login.styles.scss'
 import { Authentication } from '@/domain/usecases/authentication'
+import { Link } from 'react-router-dom'
 
 type PropsLogin ={
   validation: IValidation
@@ -55,7 +56,7 @@ const Login: React.FC<PropsLogin> = ({ validation,authentication }: PropsLogin) 
           <button className={Styles.submit} disabled={!!state.emailError || !!state.passwordError} data-testid="submit" type="submit">
           Entrar
           </button>
-          <span className={Styles.link}>Criar conta</span>
+          <Link data-testid="signup" to="/signup" className={Styles.link}>Criar conta</Link>
           <FormStatus/>
         </form>
       </Context.Provider>
