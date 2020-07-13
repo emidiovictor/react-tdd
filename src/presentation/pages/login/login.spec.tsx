@@ -1,8 +1,9 @@
-import { cleanup, fireEvent, render, RenderResult } from '@testing-library/react'
+import { cleanup, fireEvent, render, RenderResult, waitFor } from '@testing-library/react'
 import React from 'react'
 import Login from './login'
 import { ValidationStub, AuthenticationSpy } from '@/presentation/test'
 import faker from 'faker'
+import 'jest-localstorage-mock'
 
 type SutTypes = {
   sut: RenderResult
@@ -51,6 +52,7 @@ const simulateStatusFormField = (sut: RenderResult,fieldName: string,validationE
 
 describe('Login Component', () => {
   afterEach(cleanup)
+  beforeEach(localStorage.clear)
 
   test('Should start with initial state', () => {
     const validationError = faker.random.words()
@@ -122,5 +124,19 @@ describe('Login Component', () => {
     populatEmailField(sut)
     fireEvent.submit(sut.getByTestId('form'))
     expect(authenticationSpy.callsCount).toBe(0)
+  })
+
+  test('Should not call auhtentication if form is invalid', () => {
+    const validationError = faker.random.words()
+    const { sut,authenticationSpy } = makeSut({ validationError })
+    populatEmailField(sut)
+    fireEvent.submit(sut.getByTestId('form'))
+    expect(authenticationSpy.callsCount).toBe(0)
+  })
+  test('Should add acces token to localstorage on success', async () => {
+    const { sut,authenticationSpy } = makeSut()
+    simulateValidSubmit(sut)
+    await waitFor(() => sut.getByTestId('form'))
+    expect(localStorage.setItem).toHaveBeenCalledWith('acessToken',authenticationSpy.account.acessToken)
   })
 })
