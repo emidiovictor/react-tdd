@@ -18,7 +18,7 @@ type SutParams = {
 
 }
 
-const history = createMemoryHistory()
+const history = createMemoryHistory({ initialEntries: ['/login'] })
 
 const makeSut = (params?: SutParams): SutTypes => {
   const validationSpy = new ValidationStub()
@@ -142,12 +142,17 @@ describe('Login Component', () => {
     fireEvent.submit(sut.getByTestId('form'))
     expect(authenticationSpy.callsCount).toBe(0)
   })
-  test('Should add acces token to localstorage on success', async () => {
+
+  test('Should add acces token to localstorage on success and redirect to homePage', async () => {
     const { sut,authenticationSpy } = makeSut()
     simulateValidSubmit(sut)
     await waitFor(() => sut.getByTestId('form'))
-    expect(localStorage.setItem).toHaveBeenCalledWith('acessToken',authenticationSpy.account.acessToken)
+    expect(localStorage.setItem).toHaveBeenCalledWith('acessToken', authenticationSpy.account.acessToken)
+
+    expect(history.length).toBe(1)
+    expect(history.location.pathname).toBe('/')
   })
+
   test('Should go to signup page', async () => {
     const { sut } = makeSut()
     simulateValidSubmit(sut)
