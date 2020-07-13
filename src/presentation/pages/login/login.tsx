@@ -4,7 +4,7 @@ import { IValidation } from '@/presentation/protocols/validation'
 import React, { memo, useEffect, useState } from 'react'
 import Styles from './login.styles.scss'
 import { Authentication } from '@/domain/usecases/authentication'
-import { Link } from 'react-router-dom'
+import { Link,useHistory } from 'react-router-dom'
 
 type PropsLogin ={
   validation: IValidation
@@ -21,6 +21,7 @@ const Login: React.FC<PropsLogin> = ({ validation,authentication }: PropsLogin) 
     password: ''
 
   })
+  const history = useHistory()
 
   useEffect(() => {
     setState({ ...state, emailError: validation.validate('email', state.email),passwordError: validation.validate('password', state.password) })
@@ -33,8 +34,10 @@ const Login: React.FC<PropsLogin> = ({ validation,authentication }: PropsLogin) 
       setState({ ...state, isLoading: true })
 
       if (state.isLoading || state.emailError || state.passwordError) return
+
       const account = await authentication.auth({ email: state.email, password: state.password })
       localStorage.setItem('acessToken', account.acessToken)
+      history.replace('/')
     } catch (error) {
       setState({ ...state, isLoading: false, mainError: error.message })
     }
